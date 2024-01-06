@@ -7,7 +7,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 
 contract Counter is Initializable, UUPSUpgradeable, NonblockingLzApp {
     bytes public constant PAYLOAD = "\x01\x02\x03\x04";
-    uint public counter;
+    uint256 public counter;
 
     constructor() {
         _disableInitializers();
@@ -19,32 +19,28 @@ contract Counter is Initializable, UUPSUpgradeable, NonblockingLzApp {
 
     /* ========== LayerZero ========== */
     function setOracle(uint16 dstChainId, address oracle) external onlyOwner {
-        uint TYPE_ORACLE = 6;
+        uint256 TYPE_ORACLE = 6;
         // set the Oracle
         lzEndpoint.setConfig(lzEndpoint.getSendVersion(address(this)), dstChainId, TYPE_ORACLE, abi.encode(oracle));
     }
 
     function getOracle(uint16 remoteChainId) external view returns (address _oracle) {
-        bytes memory bytesOracle = lzEndpoint.getConfig(lzEndpoint.getSendVersion(address(this)), remoteChainId, address(this), 6);
+        bytes memory bytesOracle =
+            lzEndpoint.getConfig(lzEndpoint.getSendVersion(address(this)), remoteChainId, address(this), 6);
         assembly {
             _oracle := mload(add(bytesOracle, 32))
         }
     }
 
-    function estimateFee(
-        uint16 _dstChainId,
-        bool _useZro,
-        bytes calldata _adapterParams
-    ) public view returns (uint nativeFee, uint zroFee) {
+    function estimateFee(uint16 _dstChainId, bool _useZro, bytes calldata _adapterParams)
+        public
+        view
+        returns (uint256 nativeFee, uint256 zroFee)
+    {
         return lzEndpoint.estimateFees(_dstChainId, address(this), PAYLOAD, _useZro, _adapterParams);
     }
 
-    function _nonblockingLzReceive(
-        uint16,
-        bytes memory,
-        uint64,
-        bytes memory
-    ) internal override {
+    function _nonblockingLzReceive(uint16, bytes memory, uint64, bytes memory) internal override {
         counter += 1;
     }
 

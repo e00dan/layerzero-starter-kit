@@ -3,10 +3,10 @@ pragma solidity ^0.8.13;
 
 import {Script, console2} from "forge-std/Script.sol";
 
-import { BaseDeployer } from './BaseDeployer.s.sol';
-import { Counter } from "../src/Counter.sol";
-import { UUPSProxy } from "../src/UUPSProxy.sol";
-import { LzApp } from "../src/lzApp/LzApp.sol";
+import {BaseDeployer} from "./BaseDeployer.s.sol";
+import {Counter} from "../src/Counter.sol";
+import {UUPSProxy} from "../src/UUPSProxy.sol";
+import {LzApp} from "../src/lzApp/LzApp.sol";
 
 contract CounterScript is Script, BaseDeployer {
     address private create2addrCounter;
@@ -37,11 +37,9 @@ contract CounterScript is Script, BaseDeployer {
 
     /// @dev Helper to iterate over chains and select fork.
     /// @param deployForks The chains to deploy to.
-    function createDeployMultichain(
-        Chains[] memory deployForks
-    ) private {
-        for (uint256 i; i < deployForks.length; ) {
-            console2.log("Deploying Counter to chain: ", uint(deployForks[i]), "\n");
+    function createDeployMultichain(Chains[] memory deployForks) private {
+        for (uint256 i; i < deployForks.length;) {
+            console2.log("Deploying Counter to chain: ", uint256(deployForks[i]), "\n");
 
             createSelectFork(deployForks[i]);
 
@@ -53,7 +51,7 @@ contract CounterScript is Script, BaseDeployer {
         }
     }
 
-     /// @dev Function to perform actual deployment.
+    /// @dev Function to perform actual deployment.
     function chainDeployCounter() private broadcast(deployerPrivateKey) {
         Counter counter = new Counter{salt: counterSalt}();
 
@@ -62,8 +60,7 @@ contract CounterScript is Script, BaseDeployer {
         console2.log("Counter address:", address(counter), "\n");
 
         proxyCounter = new UUPSProxy{salt: counterProxySalt}(
-            address(counter),
-            abi.encodeWithSelector(LzApp.initialize.selector, ownerAddress, LZ_ENDPOINT_SEPOLIA)
+            address(counter), abi.encodeWithSelector(LzApp.initialize.selector, ownerAddress, LZ_ENDPOINT_SEPOLIA)
         );
 
         proxyCounterAddress = address(proxyCounter);

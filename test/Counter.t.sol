@@ -54,7 +54,7 @@ contract CounterTest is Test {
         lzEndpointMock.setDestLzEndpoint(address(counterSepolia), address(lzEndpointMock));
         lzEndpointMock.setDestLzEndpoint(address(counterMumbai), address(lzEndpointMock));
         vm.stopPrank();
-        
+
         bytes memory counterSepoliaAddress = abi.encodePacked(uint160(proxyCounterAddressSepolia));
         bytes memory counterMumbaiAddress = abi.encodePacked(uint160(proxyCounterAddressMumbai));
 
@@ -66,7 +66,7 @@ contract CounterTest is Test {
     }
 
     function test_SepoliaToMumbai() public {
-        uint counter_initial = counterSepolia.counter();
+        uint256 counter_initial = counterSepolia.counter();
 
         vm.deal(address(0x10), 100 ether);
         vm.startPrank(address(0x10));
@@ -74,15 +74,15 @@ contract CounterTest is Test {
         counterSepolia.incrementCounter{value: 1 ether}(ChainId);
         vm.stopPrank();
 
-        assertEq(counterMumbai.counter(), counter_initial+2);
+        assertEq(counterMumbai.counter(), counter_initial + 2);
     }
 
     function test_MumbaiToSepolia() public {
-        uint counter_initial = counterMumbai.counter();
+        uint256 counter_initial = counterMumbai.counter();
 
         vm.deal(address(0x10), 100 ether);
         vm.prank(address(0x10));
         counterMumbai.incrementCounter{value: 1 ether}(ChainId);
-        assertEq(counterSepolia.counter(), counter_initial+1);
+        assertEq(counterSepolia.counter(), counter_initial + 1);
     }
 }

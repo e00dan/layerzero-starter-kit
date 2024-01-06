@@ -57,14 +57,10 @@ library BytesLib {
             // length of the arrays.
             end := add(mc, length)
 
-            for {
-                let cc := add(_postBytes, 0x20)
-            } lt(mc, end) {
+            for { let cc := add(_postBytes, 0x20) } lt(mc, end) {
                 mc := add(mc, 0x20)
                 cc := add(cc, 0x20)
-            } {
-                mstore(mc, mload(cc))
-            }
+            } { mstore(mc, mload(cc)) }
 
             // Update the free-memory pointer by padding our last write location
             // to 32 bytes: add 31 bytes to the end of tempBytes to move to the
@@ -158,7 +154,13 @@ library BytesLib {
                 let end := add(_postBytes, mlength)
                 let mask := sub(exp(0x100, submod), 1)
 
-                sstore(sc, add(and(fslot, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00), and(mload(mc), mask)))
+                sstore(
+                    sc,
+                    add(
+                        and(fslot, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00),
+                        and(mload(mc), mask)
+                    )
+                )
 
                 for {
                     mc := add(mc, 0x20)
@@ -166,9 +168,7 @@ library BytesLib {
                 } lt(mc, end) {
                     sc := add(sc, 1)
                     mc := add(mc, 0x20)
-                } {
-                    sstore(sc, mload(mc))
-                }
+                } { sstore(sc, mload(mc)) }
 
                 mask := exp(0x100, sub(mc, end))
 
@@ -200,9 +200,7 @@ library BytesLib {
                 } lt(mc, end) {
                     sc := add(sc, 1)
                     mc := add(mc, 0x20)
-                } {
-                    sstore(sc, mload(mc))
-                }
+                } { sstore(sc, mload(mc)) }
 
                 mask := exp(0x100, sub(mc, end))
 
@@ -211,11 +209,7 @@ library BytesLib {
         }
     }
 
-    function slice(
-        bytes memory _bytes,
-        uint _start,
-        uint _length
-    ) internal pure returns (bytes memory) {
+    function slice(bytes memory _bytes, uint256 _start, uint256 _length) internal pure returns (bytes memory) {
         require(_length + 31 >= _length, "slice_overflow");
         require(_bytes.length >= _start + _length, "slice_outOfBounds");
 
@@ -252,9 +246,7 @@ library BytesLib {
                 } lt(mc, end) {
                     mc := add(mc, 0x20)
                     cc := add(cc, 0x20)
-                } {
-                    mstore(mc, mload(cc))
-                }
+                } { mstore(mc, mload(cc)) }
 
                 mstore(tempBytes, _length)
 
@@ -276,7 +268,7 @@ library BytesLib {
         return tempBytes;
     }
 
-    function toAddress(bytes memory _bytes, uint _start) internal pure returns (address) {
+    function toAddress(bytes memory _bytes, uint256 _start) internal pure returns (address) {
         require(_bytes.length >= _start + 20, "toAddress_outOfBounds");
         address tempAddress;
 
@@ -287,7 +279,7 @@ library BytesLib {
         return tempAddress;
     }
 
-    function toUint8(bytes memory _bytes, uint _start) internal pure returns (uint8) {
+    function toUint8(bytes memory _bytes, uint256 _start) internal pure returns (uint8) {
         require(_bytes.length >= _start + 1, "toUint8_outOfBounds");
         uint8 tempUint;
 
@@ -298,7 +290,7 @@ library BytesLib {
         return tempUint;
     }
 
-    function toUint16(bytes memory _bytes, uint _start) internal pure returns (uint16) {
+    function toUint16(bytes memory _bytes, uint256 _start) internal pure returns (uint16) {
         require(_bytes.length >= _start + 2, "toUint16_outOfBounds");
         uint16 tempUint;
 
@@ -309,7 +301,7 @@ library BytesLib {
         return tempUint;
     }
 
-    function toUint32(bytes memory _bytes, uint _start) internal pure returns (uint32) {
+    function toUint32(bytes memory _bytes, uint256 _start) internal pure returns (uint32) {
         require(_bytes.length >= _start + 4, "toUint32_outOfBounds");
         uint32 tempUint;
 
@@ -320,7 +312,7 @@ library BytesLib {
         return tempUint;
     }
 
-    function toUint64(bytes memory _bytes, uint _start) internal pure returns (uint64) {
+    function toUint64(bytes memory _bytes, uint256 _start) internal pure returns (uint64) {
         require(_bytes.length >= _start + 8, "toUint64_outOfBounds");
         uint64 tempUint;
 
@@ -331,7 +323,7 @@ library BytesLib {
         return tempUint;
     }
 
-    function toUint96(bytes memory _bytes, uint _start) internal pure returns (uint96) {
+    function toUint96(bytes memory _bytes, uint256 _start) internal pure returns (uint96) {
         require(_bytes.length >= _start + 12, "toUint96_outOfBounds");
         uint96 tempUint;
 
@@ -342,7 +334,7 @@ library BytesLib {
         return tempUint;
     }
 
-    function toUint128(bytes memory _bytes, uint _start) internal pure returns (uint128) {
+    function toUint128(bytes memory _bytes, uint256 _start) internal pure returns (uint128) {
         require(_bytes.length >= _start + 16, "toUint128_outOfBounds");
         uint128 tempUint;
 
@@ -353,9 +345,9 @@ library BytesLib {
         return tempUint;
     }
 
-    function toUint256(bytes memory _bytes, uint _start) internal pure returns (uint) {
+    function toUint256(bytes memory _bytes, uint256 _start) internal pure returns (uint256) {
         require(_bytes.length >= _start + 32, "toUint256_outOfBounds");
-        uint tempUint;
+        uint256 tempUint;
 
         assembly {
             tempUint := mload(add(add(_bytes, 0x20), _start))
@@ -364,7 +356,7 @@ library BytesLib {
         return tempUint;
     }
 
-    function toBytes32(bytes memory _bytes, uint _start) internal pure returns (bytes32) {
+    function toBytes32(bytes memory _bytes, uint256 _start) internal pure returns (bytes32) {
         require(_bytes.length >= _start + 32, "toBytes32_outOfBounds");
         bytes32 tempBytes32;
 
@@ -393,11 +385,10 @@ library BytesLib {
                 let mc := add(_preBytes, 0x20)
                 let end := add(mc, length)
 
-                for {
-                    let cc := add(_postBytes, 0x20)
-                    // the next line is the loop condition:
-                    // while(uint256(mc < end) + cb == 2)
-                } eq(add(lt(mc, end), cb), 2) {
+                for { let cc := add(_postBytes, 0x20) }
+                // the next line is the loop condition:
+                // while(uint256(mc < end) + cb == 2)
+                eq(add(lt(mc, end), cb), 2) {
                     mc := add(mc, 0x20)
                     cc := add(cc, 0x20)
                 } {
@@ -461,9 +452,7 @@ library BytesLib {
 
                         // the next line is the loop condition:
                         // while(uint256(mc < end) + cb == 2)
-                        for {
-
-                        } eq(add(lt(mc, end), cb), 2) {
+                        for {} eq(add(lt(mc, end), cb), 2) {
                             sc := add(sc, 1)
                             mc := add(mc, 0x20)
                         } {

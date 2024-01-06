@@ -29,7 +29,7 @@ contract LZEndpointMock is ILayerZeroEndpoint {
     // fee config
     RelayerFeeConfig public relayerFeeConfig;
     ProtocolFeeConfig public protocolFeeConfig;
-    uint public oracleFee;
+    uint256 public oracleFee;
     bytes public defaultAdapterParams;
 
     // path = remote addrss + local address
@@ -50,8 +50,8 @@ contract LZEndpointMock is ILayerZeroEndpoint {
     uint8 internal _receive_entered_state = 1;
 
     struct ProtocolFeeConfig {
-        uint zroFee;
-        uint nativeBP;
+        uint256 zroFee;
+        uint256 nativeBP;
     }
 
     struct RelayerFeeConfig {
@@ -90,8 +90,10 @@ contract LZEndpointMock is ILayerZeroEndpoint {
 
     event UaForceResumeReceive(uint16 chainId, bytes srcAddress);
     event PayloadCleared(uint16 srcChainId, bytes srcAddress, uint64 nonce, address dstAddress);
-    event PayloadStored(uint16 srcChainId, bytes srcAddress, address dstAddress, uint64 nonce, bytes payload, bytes reason);
-    event ValueTransferFailed(address indexed to, uint indexed quantity);
+    event PayloadStored(
+        uint16 srcChainId, bytes srcAddress, address dstAddress, uint64 nonce, bytes payload, bytes reason
+    );
+    event ValueTransferFailed(address indexed to, uint256 indexed quantity);
 
     constructor(uint16 _chainId) {
         mockChainId = _chainId;
@@ -130,23 +132,25 @@ contract LZEndpointMock is ILayerZeroEndpoint {
 
         // not handle zro token
         bytes memory adapterParams = _adapterParams.length > 0 ? _adapterParams : defaultAdapterParams;
-        (uint nativeFee, ) = estimateFees(_chainId, msg.sender, _payload, _zroPaymentAddress != address(0x0), adapterParams);
+        (uint256 nativeFee,) =
+            estimateFees(_chainId, msg.sender, _payload, _zroPaymentAddress != address(0x0), adapterParams);
         require(msg.value >= nativeFee, "LayerZeroMock: not enough native for fees");
 
         uint64 nonce = ++outboundNonce[_chainId][msg.sender];
 
         // refund if they send too much
-        uint amount = msg.value - nativeFee;
+        uint256 amount = msg.value - nativeFee;
         if (amount > 0) {
-            (bool success, ) = _refundAddress.call{value: amount}("");
+            (bool success,) = _refundAddress.call{value: amount}("");
             require(success, "LayerZeroMock: failed to refund");
         }
 
         // Mock the process of receiving msg on dst chain
         // Mock the relayer paying the dstNativeAddr the amount of extra native token
-        (, uint extraGas, uint dstNativeAmt, address payable dstNativeAddr) = LzLib.decodeAdapterParams(adapterParams);
+        (, uint256 extraGas, uint256 dstNativeAmt, address payable dstNativeAddr) =
+            LzLib.decodeAdapterParams(adapterParams);
         if (dstNativeAmt > 0) {
-            (bool success, ) = dstNativeAddr.call{value: dstNativeAmt}("");
+            (bool success,) = dstNativeAddr.call{value: dstNativeAmt}("");
             if (!success) {
                 emit ValueTransferFailed(dstNativeAddr, dstNativeAmt);
             }
@@ -162,7 +166,7 @@ contract LZEndpointMock is ILayerZeroEndpoint {
         bytes calldata _path,
         address _dstAddress,
         uint64 _nonce,
-        uint _gasLimit,
+        uint256 _gasLimit,
         bytes calldata _payload
     ) external override receiveNonReentrant {
         StoredPayload storage sp = storedPayload[_srcChainId][_path];
@@ -182,7 +186,7 @@ contract LZEndpointMock is ILayerZeroEndpoint {
                 msgs.push(newMsg);
 
                 // shift all the indexes up for pop()
-                for (uint i = 0; i < msgs.length - 1; i++) {
+                for (uint256 i = 0; i < msgs.length - 1; i++) {
                     msgs[i + 1] = msgs[i];
                 }
 
@@ -197,8 +201,10 @@ contract LZEndpointMock is ILayerZeroEndpoint {
             // ensure the next msgs that go through are no longer blocked
             nextMsgBlocked = false;
         } else {
-            try ILayerZeroReceiver(_dstAddress).lzReceive{gas: _gasLimit}(_srcChainId, _path, _nonce, _payload) {} catch (bytes memory reason) {
-                storedPayload[_srcChainId][_path] = StoredPayload(uint64(_payload.length), _dstAddress, keccak256(_payload));
+            try ILayerZeroReceiver(_dstAddress).lzReceive{gas: _gasLimit}(_srcChainId, _path, _nonce, _payload) {}
+            catch (bytes memory reason) {
+                storedPayload[_srcChainId][_path] =
+                    StoredPayload(uint64(_payload.length), _dstAddress, keccak256(_payload));
                 emit PayloadStored(_srcChainId, _path, _dstAddress, _nonce, _payload, reason);
                 // ensure the next msgs that go through are no longer blocked
                 nextMsgBlocked = false;
@@ -220,14 +226,14 @@ contract LZEndpointMock is ILayerZeroEndpoint {
         bytes memory _payload,
         bool _payInZRO,
         bytes memory _adapterParams
-    ) public view override returns (uint nativeFee, uint zroFee) {
+    ) public view override returns (uint256 nativeFee, uint256 zroFee) {
         bytes memory adapterParams = _adapterParams.length > 0 ? _adapterParams : defaultAdapterParams;
 
         // Relayer Fee
-        uint relayerFee = _getRelayerFee(_dstChainId, 1, _userApplication, _payload.length, adapterParams);
+        uint256 relayerFee = _getRelayerFee(_dstChainId, 1, _userApplication, _payload.length, adapterParams);
 
         // LayerZero Fee
-        uint protocolFee = _getProtocolFees(_payInZRO, relayerFee, oracleFee);
+        uint256 protocolFee = _getProtocolFees(_payInZRO, relayerFee, oracleFee);
         _payInZRO ? zroFee = protocolFee : nativeFee = protocolFee;
 
         // return the sum of fees
@@ -238,14 +244,13 @@ contract LZEndpointMock is ILayerZeroEndpoint {
         return mockChainId;
     }
 
-    function retryPayload(
-        uint16 _srcChainId,
-        bytes calldata _path,
-        bytes calldata _payload
-    ) external override {
+    function retryPayload(uint16 _srcChainId, bytes calldata _path, bytes calldata _payload) external override {
         StoredPayload storage sp = storedPayload[_srcChainId][_path];
         require(sp.payloadHash != bytes32(0), "LayerZeroMock: no stored payload");
-        require(_payload.length == sp.payloadLength && keccak256(_payload) == sp.payloadHash, "LayerZeroMock: invalid payload");
+        require(
+            _payload.length == sp.payloadLength && keccak256(_payload) == sp.payloadHash,
+            "LayerZeroMock: invalid payload"
+        );
 
         address dstAddress = sp.dstAddress;
         // empty the storedPayload
@@ -280,41 +285,31 @@ contract LZEndpointMock is ILayerZeroEndpoint {
         return _receive_entered_state == _ENTERED;
     }
 
-    function getConfig(
-        uint16, /*_version*/
-        uint16, /*_chainId*/
-        address, /*_ua*/
-        uint /*_configType*/
-    ) external pure override returns (bytes memory) {
+    function getConfig(uint16, /*_version*/ uint16, /*_chainId*/ address, /*_ua*/ uint256 /*_configType*/ )
+        external
+        pure
+        override
+        returns (bytes memory)
+    {
         return "";
     }
 
-    function getSendVersion(
-        address /*_userApplication*/
-    ) external pure override returns (uint16) {
+    function getSendVersion(address /*_userApplication*/ ) external pure override returns (uint16) {
         return 1;
     }
 
-    function getReceiveVersion(
-        address /*_userApplication*/
-    ) external pure override returns (uint16) {
+    function getReceiveVersion(address /*_userApplication*/ ) external pure override returns (uint16) {
         return 1;
     }
 
-    function setConfig(
-        uint16, /*_version*/
-        uint16, /*_chainId*/
-        uint, /*_configType*/
-        bytes memory /*_config*/
-    ) external override {}
+    function setConfig(uint16, /*_version*/ uint16, /*_chainId*/ uint256, /*_configType*/ bytes memory /*_config*/ )
+        external
+        override
+    {}
 
-    function setSendVersion(
-        uint16 /*version*/
-    ) external override {}
+    function setSendVersion(uint16 /*version*/ ) external override {}
 
-    function setReceiveVersion(
-        uint16 /*version*/
-    ) external override {}
+    function setReceiveVersion(uint16 /*version*/ ) external override {}
 
     function forceResumeReceive(uint16 _srcChainId, bytes calldata _path) external override {
         StoredPayload storage sp = storedPayload[_srcChainId][_path];
@@ -335,7 +330,7 @@ contract LZEndpointMock is ILayerZeroEndpoint {
 
     // ------------------------------ Other Public/External Functions --------------------------------------------------
 
-    function getLengthOfQueue(uint16 _srcChainId, bytes calldata _srcAddress) external view returns (uint) {
+    function getLengthOfQueue(uint16 _srcChainId, bytes calldata _srcAddress) external view returns (uint256) {
         return msgsToDeliver[_srcChainId][_srcAddress].length;
     }
 
@@ -362,12 +357,12 @@ contract LZEndpointMock is ILayerZeroEndpoint {
         relayerFeeConfig.gasPerByte = _gasPerByte;
     }
 
-    function setProtocolFee(uint _zroFee, uint _nativeBP) external {
+    function setProtocolFee(uint256 _zroFee, uint256 _nativeBP) external {
         protocolFeeConfig.zroFee = _zroFee;
         protocolFeeConfig.nativeBP = _nativeBP;
     }
 
-    function setOracleFee(uint _oracleFee) external {
+    function setOracleFee(uint256 _oracleFee) external {
         oracleFee = _oracleFee;
     }
 
@@ -388,11 +383,11 @@ contract LZEndpointMock is ILayerZeroEndpoint {
         }
     }
 
-    function _getProtocolFees(
-        bool _payInZro,
-        uint _relayerFee,
-        uint _oracleFee
-    ) internal view returns (uint) {
+    function _getProtocolFees(bool _payInZro, uint256 _relayerFee, uint256 _oracleFee)
+        internal
+        view
+        returns (uint256)
+    {
         if (_payInZro) {
             return protocolFeeConfig.zroFee;
         } else {
@@ -404,25 +399,27 @@ contract LZEndpointMock is ILayerZeroEndpoint {
         uint16, /* _dstChainId */
         uint16, /* _outboundProofType */
         address, /* _userApplication */
-        uint _payloadSize,
+        uint256 _payloadSize,
         bytes memory _adapterParams
-    ) internal view returns (uint) {
-        (uint16 txType, uint extraGas, uint dstNativeAmt, ) = LzLib.decodeAdapterParams(_adapterParams);
-        uint totalRemoteToken; // = baseGas + extraGas + requiredNativeAmount
+    ) internal view returns (uint256) {
+        (uint16 txType, uint256 extraGas, uint256 dstNativeAmt,) = LzLib.decodeAdapterParams(_adapterParams);
+        uint256 totalRemoteToken; // = baseGas + extraGas + requiredNativeAmount
         if (txType == 2) {
             require(relayerFeeConfig.dstNativeAmtCap >= dstNativeAmt, "LayerZeroMock: dstNativeAmt too large ");
             totalRemoteToken += dstNativeAmt;
         }
         // remoteGasTotal = dstGasPriceInWei * (baseGas + extraGas)
-        uint remoteGasTotal = relayerFeeConfig.dstGasPriceInWei * (relayerFeeConfig.baseGas + extraGas);
+        uint256 remoteGasTotal = relayerFeeConfig.dstGasPriceInWei * (relayerFeeConfig.baseGas + extraGas);
         totalRemoteToken += remoteGasTotal;
 
         // tokenConversionRate = dstPrice / localPrice
         // basePrice = totalRemoteToken * tokenConversionRate
-        uint basePrice = (totalRemoteToken * relayerFeeConfig.dstPriceRatio) / 10**10;
+        uint256 basePrice = (totalRemoteToken * relayerFeeConfig.dstPriceRatio) / 10 ** 10;
 
         // pricePerByte = (dstGasPriceInWei * gasPerBytes) * tokenConversionRate
-        uint pricePerByte = (relayerFeeConfig.dstGasPriceInWei * relayerFeeConfig.gasPerByte * relayerFeeConfig.dstPriceRatio) / 10**10;
+        uint256 pricePerByte = (
+            relayerFeeConfig.dstGasPriceInWei * relayerFeeConfig.gasPerByte * relayerFeeConfig.dstPriceRatio
+        ) / 10 ** 10;
 
         return basePrice + _payloadSize * pricePerByte;
     }

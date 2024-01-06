@@ -33,7 +33,7 @@ interface ILayerZeroEndpoint is ILayerZeroUserApplicationConfig {
         bytes calldata _srcAddress,
         address _dstAddress,
         uint64 _nonce,
-        uint _gasLimit,
+        uint256 _gasLimit,
         bytes calldata _payload
     ) external;
 
@@ -58,7 +58,7 @@ interface ILayerZeroEndpoint is ILayerZeroUserApplicationConfig {
         bytes calldata _payload,
         bool _payInZRO,
         bytes calldata _adapterParam
-    ) external view returns (uint nativeFee, uint zroFee);
+    ) external view returns (uint256 nativeFee, uint256 zroFee);
 
     // @notice get this Endpoint's immutable source identifier
     function getChainId() external view returns (uint16);
@@ -67,11 +67,7 @@ interface ILayerZeroEndpoint is ILayerZeroUserApplicationConfig {
     // @param _srcChainId - the source chain identifier
     // @param _srcAddress - the source chain contract address
     // @param _payload - the payload to be retried
-    function retryPayload(
-        uint16 _srcChainId,
-        bytes calldata _srcAddress,
-        bytes calldata _payload
-    ) external;
+    function retryPayload(uint16 _srcChainId, bytes calldata _srcAddress, bytes calldata _payload) external;
 
     // @notice query if any STORED payload (message blocking) at the endpoint.
     // @param _srcChainId - the source chain identifier
@@ -99,12 +95,10 @@ interface ILayerZeroEndpoint is ILayerZeroUserApplicationConfig {
     // @param _chainId - the chainId for the pending config change
     // @param _userApplication - the contract address of the user application
     // @param _configType - type of configuration. every messaging library has its own convention.
-    function getConfig(
-        uint16 _version,
-        uint16 _chainId,
-        address _userApplication,
-        uint _configType
-    ) external view returns (bytes memory);
+    function getConfig(uint16 _version, uint16 _chainId, address _userApplication, uint256 _configType)
+        external
+        view
+        returns (bytes memory);
 
     // @notice get the send() LayerZero messaging library version
     // @param _userApplication - the contract address of the user application
