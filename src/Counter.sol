@@ -2,20 +2,15 @@
 pragma solidity ^0.8.19;
 
 import "./lzApp/NonblockingLzApp.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import {OwnableUpgradeable } from "@openzeppelin/contracts/proxy/utils/OwnableUpgradeable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract Counter is Initializable, UUPSUpgradeable, OwnableUpgradeable, NonblockingLzApp {
+contract Counter is Initializable, UUPSUpgradeable, NonblockingLzApp {
     bytes public constant PAYLOAD = "\x01\x02\x03\x04";
     uint public counter;
 
     constructor() {
         _disableInitializers();
-    }
-
-    function initialize(address _owner, address _lzEndpoint) public initializer {
-        __Ownable_init(multisig);
     }
 
     function incrementCounter(uint16 _dstChainId) public payable {

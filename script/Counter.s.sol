@@ -6,6 +6,7 @@ import {Script, console2} from "forge-std/Script.sol";
 import { BaseDeployer } from './BaseDeployer.s.sol';
 import { Counter } from "../src/Counter.sol";
 import { UUPSProxy } from "../src/UUPSProxy.sol";
+import { LzApp } from "../src/lzApp/LzApp.sol";
 
 contract CounterScript is Script, BaseDeployer {
     address private create2addrCounter;
@@ -13,17 +14,17 @@ contract CounterScript is Script, BaseDeployer {
 
     Counter private wrappedProxy;
 
-    address public constant LZ_SEPOLIA_ENDPOINT = 0x464570adA09869d8741132183721B4f0769a0287;
+    address public constant LZ_ENDPOINT_SEPOLIA = 0x464570adA09869d8741132183721B4f0769a0287;
 
     function setUp() public {}
 
     function run() public {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        vm.startBroadcast(deployerPrivateKey);
+        // uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        // vm.startBroadcast(deployerPrivateKey);
 
-        Counter counterSepolia = new Counter(LZ_SEPOLIA_ENDPOINT);
+        // Counter counterSepolia = new Counter(LZ_SEPOLIA_ENDPOINT);
 
-        vm.stopBroadcast();
+        // vm.stopBroadcast();
     }
 
     function deployCounterTestnet() public {
@@ -54,7 +55,7 @@ contract CounterScript is Script, BaseDeployer {
 
      /// @dev Function to perform actual deployment.
     function chainDeployCounter() private broadcast(deployerPrivateKey) {
-        Counter counter = new Counter{salt: counterSalt}(LZ_SEPOLIA_ENDPOINT);
+        Counter counter = new Counter{salt: counterSalt}();
 
         require(create2addrCounter == address(counter), "Address mismatch Counter");
 
@@ -62,7 +63,7 @@ contract CounterScript is Script, BaseDeployer {
 
         proxyCounter = new UUPSProxy{salt: counterProxySalt}(
             address(counter),
-            abi.encodeWithSelector(Counter.initialize.selector, ownerAddress)
+            abi.encodeWithSelector(LzApp.initialize.selector, ownerAddress, LZ_ENDPOINT_SEPOLIA)
         );
 
         proxyCounterAddress = address(proxyCounter);

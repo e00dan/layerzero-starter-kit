@@ -2,22 +2,23 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/ILayerZeroReceiver.sol";
 import "./interfaces/ILayerZeroUserApplicationConfig.sol";
 import "./interfaces/ILayerZeroEndpoint.sol";
 import "./libs/BytesLib.sol";
+import {OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /*
  * a generic LzReceiver implementation
  */
-abstract contract LzApp is Ownable, ILayerZeroReceiver, ILayerZeroUserApplicationConfig {
+abstract contract LzApp is Initializable, OwnableUpgradeable, ILayerZeroReceiver, ILayerZeroUserApplicationConfig {
     using BytesLib for bytes;
 
     // ua can not send payload larger than this by default, but it can be changed by the ua owner
     uint public constant DEFAULT_PAYLOAD_SIZE_LIMIT = 10000;
 
-    ILayerZeroEndpoint public immutable lzEndpoint;
+    ILayerZeroEndpoint public lzEndpoint;
     mapping(uint16 => bytes) public trustedRemoteLookup;
     mapping(uint16 => mapping(uint16 => uint)) public minDstGasLookup;
     mapping(uint16 => uint) public payloadSizeLimitLookup;
@@ -28,14 +29,19 @@ abstract contract LzApp is Ownable, ILayerZeroReceiver, ILayerZeroUserApplicatio
     event SetTrustedRemoteAddress(uint16 _remoteChainId, bytes _remoteAddress);
     event SetMinDstGas(uint16 _dstChainId, uint16 _type, uint _minDstGas);
 
-    constructor(address _endpoint) Ownable(_msgSender()) {
-        lzEndpoint = ILayerZeroEndpoint(_endpoint);
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address _owner, address _lzEndpoint) public initializer {
+        __Ownable_init(_owner);
+        lzEndpoint = ILayerZeroEndpoint(_lzEndpoint);
     }
 
     function lzReceive(
         uint16 _srcChainId,
         bytes calldata _srcAddress,
-        uint64 _nonce,
+        uint64 _nonce,  
         bytes calldata _payload
     ) public virtual override {
         // lzReceive must be called by the endpoint for security

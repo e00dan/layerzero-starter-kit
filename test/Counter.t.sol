@@ -5,6 +5,8 @@ import {Test, console2} from "forge-std/Test.sol";
 
 import {LZEndpointMock} from "../src/lzApp/mocks/LZEndpointMock.sol";
 import {Counter} from "../src/Counter.sol";
+import {UUPSProxy} from "../src/UUPSProxy.sol";
+import {LzApp} from "../src/lzApp/LzApp.sol";
 
 contract CounterTest is Test {
     LZEndpointMock public lzEndpointMock;
@@ -22,11 +24,27 @@ contract CounterTest is Test {
         vm.prank(address(0x1));
         lzEndpointMock = new LZEndpointMock(ChainId);
 
-        vm.prank(address(0x2));
-        counterSepolia = new Counter(address(lzEndpointMock));
+        address ownerAddressSepolia = address(0x2);
+        address ownerAddressMumbai = address(0x2);
 
-        vm.prank(address(0x3));
-        counterMumbai = new Counter(address(lzEndpointMock));
+        vm.prank(ownerAddressSepolia);
+
+        counterSepolia = new Counter();
+        UUPSProxy proxyCounterSepolia = new UUPSProxy(
+            address(counterSepolia),
+            abi.encodeWithSelector(LzApp.initialize.selector, ownerAddressSepolia, address(lzEndpointMock))
+        );
+        address proxyCounterAddressSepolia = address(proxyCounterSepolia);
+        counterSepolia = Counter(proxyCounterAddressSepolia);
+
+        vm.prank(ownerAddressMumbai);
+        counterMumbai = new Counter();
+        UUPSProxy proxyCounterMumbai = new UUPSProxy(
+            address(counterMumbai),
+            abi.encodeWithSelector(LzApp.initialize.selector, ownerAddressMumbai, address(lzEndpointMock))
+        );
+        address proxyCounterAddressMumbai = address(proxyCounterMumbai);
+        counterMumbai = Counter(proxyCounterAddressMumbai);
 
         vm.deal(address(lzEndpointMock), 100 ether);
         vm.deal(address(counterSepolia), 100 ether);
@@ -37,13 +55,13 @@ contract CounterTest is Test {
         lzEndpointMock.setDestLzEndpoint(address(counterMumbai), address(lzEndpointMock));
         vm.stopPrank();
         
-        bytes memory counterMumbaiAddress = abi.encodePacked(uint160(address(counterMumbai)));
-        bytes memory counterSepoliaAddress = abi.encodePacked(uint160(address(counterSepolia)));
+        bytes memory counterSepoliaAddress = abi.encodePacked(uint160(proxyCounterAddressSepolia));
+        bytes memory counterMumbaiAddress = abi.encodePacked(uint160(proxyCounterAddressMumbai));
 
-        vm.prank(address(0x2));
+        vm.prank(ownerAddressSepolia);
         counterSepolia.setTrustedRemoteAddress(ChainId, counterMumbaiAddress);
 
-        vm.prank(address(0x3));
+        vm.prank(ownerAddressMumbai);
         counterMumbai.setTrustedRemoteAddress(ChainId, counterSepoliaAddress);
     }
 
