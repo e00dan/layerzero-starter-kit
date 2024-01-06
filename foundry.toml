@@ -6,7 +6,9 @@ libs = ["lib"]
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
 
 [rpc_endpoints]
+mumbai = "${MUMBAI_RPC_URL}"
 sepolia = "${SEPOLIA_RPC_URL}"
 
 [etherscan]
+mumbai = { key = "${POLYGONSCAN_API_KEY}", chain = "mumbai" }
 sepolia = { key = "${ETHERSCAN_API_KEY}" }

@@ -108,6 +108,7 @@ contract BaseDeployer is Script {
         forks[Chains.OptimismGoerli] = "optimismgoerli";
         forks[Chains.Moonriver] = "moonriver";
         forks[Chains.Shiden] = "shiden";
+        forks[Chains.Sepolia] = "sepolia";
 
         // Mainnet
         forks[Chains.Etherum] = "etherum";
@@ -124,7 +125,7 @@ contract BaseDeployer is Script {
         vm.createFork(forks[chain]);
     }
 
-    function createSelectFork(Chains chain) public {
-        vm.createSelectFork(forks[chain]);
+    function createSelectFork(Chains chain) public returns (uint256 forkId) {
+        return vm.createSelectFork(forks[chain]);
     }
 }
