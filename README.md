@@ -13,6 +13,14 @@ I still recommend to consult [official repository of LayerZero](https://github.c
 
 ## Usage
 
+### Preparation
+
+```
+cp .env.example .env
+```
+
+Fill `TEST_DEPLOYER_KEY` and `TEST_OWNER_ADDRESS` before running deployment script.
+
 ### Build
 
 ```shell
