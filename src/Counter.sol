@@ -1,16 +1,16 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-import { OAppInitializable, MessagingFee, Origin } from "./OApp/OAppInitializable.sol";
+import {OAppInitializable, MessagingFee, Origin} from "./OApp/OAppInitializable.sol";
 
 contract Counter is OAppInitializable, UUPSUpgradeable {
     bytes public constant MESSAGE = "";
 
     uint256 public count;
 
-    function increment(uint32 _dstEid,  bytes calldata _options) public payable {
+    function increment(uint32 _dstEid, bytes calldata _options) public payable {
         _lzSend(
             _dstEid, // Destination chain's endpoint ID.
             MESSAGE, // Encoded message payload being sent.

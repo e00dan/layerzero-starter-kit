@@ -2,15 +2,15 @@
 
 pragma solidity ^0.8.22;
 
-import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 // @dev Import the 'MessagingFee' so it's exposed to OApp implementers
 // solhint-disable-next-line no-unused-import
-import { OAppSender, MessagingFee } from "./OAppSender.sol";
+import {OAppSender, MessagingFee} from "./OAppSender.sol";
 // @dev Import the 'Origin' so it's exposed to OApp implementers
 // solhint-disable-next-line no-unused-import
-import { OAppReceiver, Origin } from "./OAppReceiver.sol";
-import { OAppCoreInitializable } from "./OAppCoreInitializable.sol";
+import {OAppReceiver, Origin} from "./OAppReceiver.sol";
+import {OAppCoreInitializable} from "./OAppCoreInitializable.sol";
 
 /**
  * @title OAppInitializable

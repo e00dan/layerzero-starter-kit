@@ -1,14 +1,14 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
 import {Test, console2} from "forge-std/Test.sol";
 
-import { OptionsBuilder } from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol";
-import { Counter } from "../src/Counter.sol";
-import { UUPSProxy } from "../src/UUPSProxy.sol";
-import { OAppCoreInitializable } from "../src/OApp/OAppCoreInitializable.sol";
+import {OptionsBuilder} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol";
+import {Counter} from "../src/Counter.sol";
+import {UUPSProxy} from "../src/UUPSProxy.sol";
+import {OAppCoreInitializable} from "../src/OApp/OAppCoreInitializable.sol";
 
-import { TestHelper } from "@layerzerolabs/lz-evm-oapp-v2/test/TestHelper.sol";
+import {TestHelper} from "@layerzerolabs/lz-evm-oapp-v2/test/TestHelper.sol";
 
 contract CounterTest is TestHelper {
     using OptionsBuilder for bytes;
@@ -34,8 +34,9 @@ contract CounterTest is TestHelper {
         uint256 counterBefore = bCounter.count();
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
-        (uint256 nativeFee, ) = aCounter.quote(bEid, options);
-        aCounter.increment{ value: nativeFee }(bEid, options);
+        console2.logBytes(options);
+        (uint256 nativeFee,) = aCounter.quote(bEid, options);
+        aCounter.increment{value: nativeFee}(bEid, options);
 
         assertEq(bCounter.count(), counterBefore, "shouldn't be increased until packet is verified");
 
@@ -48,10 +49,7 @@ contract CounterTest is TestHelper {
     /**
      * @dev setup UAs, only if the UA has `endpoint` address as the unique parameter
      */
-    function setupOAppsProxies(
-        uint8 _startEid,
-        uint8 _oappNum
-    ) public returns (address[] memory oapps) {
+    function setupOAppsProxies(uint8 _startEid, uint8 _oappNum) public returns (address[] memory oapps) {
         oapps = new address[](_oappNum);
         for (uint8 eid = _startEid; eid < _startEid + _oappNum; eid++) {
             address oapp = _deployOAppProxy(address(endpoints[eid]), address(this));
@@ -64,8 +62,7 @@ contract CounterTest is TestHelper {
     function _deployOAppProxy(address _endpoint, address _owner) internal returns (address addr) {
         Counter counter = new Counter();
         UUPSProxy proxyCounter = new UUPSProxy(
-            address(counter),
-            abi.encodeWithSelector(OAppCoreInitializable.initialize.selector, _endpoint, _owner)
+            address(counter), abi.encodeWithSelector(OAppCoreInitializable.initialize.selector, _endpoint, _owner)
         );
         addr = address(proxyCounter);
     }

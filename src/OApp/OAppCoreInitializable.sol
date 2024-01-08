@@ -2,15 +2,16 @@
 
 pragma solidity ^0.8.22;
 
-import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import { IOAppCore, ILayerZeroEndpointV2 } from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/interfaces/IOAppCore.sol";
+import {IOAppCore, ILayerZeroEndpointV2} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/interfaces/IOAppCore.sol";
 import "forge-std/console2.sol";
 /**
  * @title OAppCoreInitializable
  * @dev Abstract contract implementing the IOAppCore interface with basic OApp configurations.
  */
+
 abstract contract OAppCoreInitializable is Initializable, IOAppCore, OwnableUpgradeable {
     // The LayerZero endpoint associated with the given OApp
     ILayerZeroEndpointV2 public endpoint;

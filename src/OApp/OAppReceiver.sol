@@ -2,8 +2,10 @@
 
 pragma solidity ^0.8.22;
 
-import { ILayerZeroReceiver, Origin } from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroReceiver.sol";
-import { OAppCoreInitializable } from "./OAppCoreInitializable.sol";
+import {
+    ILayerZeroReceiver, Origin
+} from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroReceiver.sol";
+import {OAppCoreInitializable} from "./OAppCoreInitializable.sol";
 
 /**
  * @title OAppReceiver
@@ -54,7 +56,7 @@ abstract contract OAppReceiver is ILayerZeroReceiver, OAppCoreInitializable {
      * @dev This is also enforced by the OApp.
      * @dev By default this is NOT enabled. ie. nextNonce is hardcoded to return 0.
      */
-    function nextNonce(uint32 /*_srcEid*/, bytes32 /*_sender*/) public view virtual returns (uint64 nonce) {
+    function nextNonce(uint32, /*_srcEid*/ bytes32 /*_sender*/ ) public view virtual returns (uint64 nonce) {
         return 0;
     }
 
