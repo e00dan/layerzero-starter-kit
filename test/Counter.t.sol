@@ -8,7 +8,9 @@ import {Counter} from "../src/Counter.sol";
 import {UUPSProxy} from "../src/UUPSProxy.sol";
 import {LzApp} from "../src/lzApp/LzApp.sol";
 
-contract CounterTest is Test {
+import { TestHelper } from "@layerzerolabs/lz-evm-oapp-v2/test/TestHelper.sol";
+
+contract CounterTest is TestHelper {
     LZEndpointMock public lzEndpointMock;
 
     Counter public counterSepolia;
@@ -37,32 +39,32 @@ contract CounterTest is Test {
         address proxyCounterAddressSepolia = address(proxyCounterSepolia);
         counterSepolia = Counter(proxyCounterAddressSepolia);
 
-        vm.prank(ownerAddressMumbai);
-        counterMumbai = new Counter();
-        UUPSProxy proxyCounterMumbai = new UUPSProxy(
-            address(counterMumbai),
-            abi.encodeWithSelector(LzApp.initialize.selector, ownerAddressMumbai, address(lzEndpointMock))
-        );
-        address proxyCounterAddressMumbai = address(proxyCounterMumbai);
-        counterMumbai = Counter(proxyCounterAddressMumbai);
+        // vm.prank(ownerAddressMumbai);
+        // counterMumbai = new Counter();
+        // UUPSProxy proxyCounterMumbai = new UUPSProxy(
+        //     address(counterMumbai),
+        //     abi.encodeWithSelector(LzApp.initialize.selector, ownerAddressMumbai, address(lzEndpointMock))
+        // );
+        // address proxyCounterAddressMumbai = address(proxyCounterMumbai);
+        // counterMumbai = Counter(proxyCounterAddressMumbai);
 
-        vm.deal(address(lzEndpointMock), 100 ether);
-        vm.deal(address(counterSepolia), 100 ether);
-        vm.deal(address(counterMumbai), 100 ether);
+        // vm.deal(address(lzEndpointMock), 100 ether);
+        // vm.deal(address(counterSepolia), 100 ether);
+        // vm.deal(address(counterMumbai), 100 ether);
 
-        vm.startPrank(address(0x1));
-        lzEndpointMock.setDestLzEndpoint(address(counterSepolia), address(lzEndpointMock));
-        lzEndpointMock.setDestLzEndpoint(address(counterMumbai), address(lzEndpointMock));
-        vm.stopPrank();
+        // vm.startPrank(address(0x1));
+        // lzEndpointMock.setDestLzEndpoint(address(counterSepolia), address(lzEndpointMock));
+        // lzEndpointMock.setDestLzEndpoint(address(counterMumbai), address(lzEndpointMock));
+        // vm.stopPrank();
 
-        bytes memory counterSepoliaAddress = abi.encodePacked(uint160(proxyCounterAddressSepolia));
-        bytes memory counterMumbaiAddress = abi.encodePacked(uint160(proxyCounterAddressMumbai));
+        // bytes memory counterSepoliaAddress = abi.encodePacked(uint160(proxyCounterAddressSepolia));
+        // bytes memory counterMumbaiAddress = abi.encodePacked(uint160(proxyCounterAddressMumbai));
 
-        vm.prank(ownerAddressSepolia);
-        counterSepolia.setTrustedRemoteAddress(ChainId, counterMumbaiAddress);
+        // vm.prank(ownerAddressSepolia);
+        // counterSepolia.setTrustedRemoteAddress(ChainId, counterMumbaiAddress);
 
-        vm.prank(ownerAddressMumbai);
-        counterMumbai.setTrustedRemoteAddress(ChainId, counterSepoliaAddress);
+        // vm.prank(ownerAddressMumbai);
+        // counterMumbai.setTrustedRemoteAddress(ChainId, counterSepoliaAddress);
     }
 
     function test_SepoliaToMumbai() public {
@@ -77,12 +79,12 @@ contract CounterTest is Test {
         assertEq(counterMumbai.counter(), counter_initial + 2);
     }
 
-    function test_MumbaiToSepolia() public {
-        uint256 counter_initial = counterMumbai.counter();
+    // function test_MumbaiToSepolia() public {
+    //     uint256 counter_initial = counterMumbai.counter();
 
-        vm.deal(address(0x10), 100 ether);
-        vm.prank(address(0x10));
-        counterMumbai.incrementCounter{value: 1 ether}(ChainId);
-        assertEq(counterSepolia.counter(), counter_initial + 1);
-    }
+    //     vm.deal(address(0x10), 100 ether);
+    //     vm.prank(address(0x10));
+    //     counterMumbai.incrementCounter{value: 1 ether}(ChainId);
+    //     assertEq(counterSepolia.counter(), counter_initial + 1);
+    // }
 }

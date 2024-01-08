@@ -5,42 +5,31 @@ import "./lzApp/NonblockingLzApp.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract Counter is Initializable, UUPSUpgradeable, NonblockingLzApp {
+import { OAppInitializable, MessagingFee, Origin } from "./OApp/OAppInitializable.sol";
+
+contract Counter is OAppInitializable, UUPSUpgradeable {
     bytes public constant PAYLOAD = "\x01\x02\x03\x04";
     uint256 public counter;
 
-    constructor() {
-        _disableInitializers();
+    function incrementCounter(uint32 _dstEid) public payable {
+        bytes memory _options = bytes("0x00030100110100000000000000000000000000030d40");
+
+        _lzSend(
+            _dstEid, // Destination chain's endpoint ID.
+            PAYLOAD, // Encoded message payload being sent.
+            _options, // Message execution options (e.g., gas to use on destination).
+            MessagingFee(msg.value, 0), // Fee struct containing native gas and ZRO token.
+            payable(msg.sender) // The refund address in case the send call reverts.
+        );
     }
 
-    function incrementCounter(uint16 _dstChainId) public payable {
-        _lzSend(_dstChainId, PAYLOAD, payable(msg.sender), address(0x0), bytes(""), msg.value);
-    }
-
-    /* ========== LayerZero ========== */
-    function setOracle(uint16 dstChainId, address oracle) external onlyOwner {
-        uint256 TYPE_ORACLE = 6;
-        // set the Oracle
-        lzEndpoint.setConfig(lzEndpoint.getSendVersion(address(this)), dstChainId, TYPE_ORACLE, abi.encode(oracle));
-    }
-
-    function getOracle(uint16 remoteChainId) external view returns (address _oracle) {
-        bytes memory bytesOracle =
-            lzEndpoint.getConfig(lzEndpoint.getSendVersion(address(this)), remoteChainId, address(this), 6);
-        assembly {
-            _oracle := mload(add(bytesOracle, 32))
-        }
-    }
-
-    function estimateFee(uint16 _dstChainId, bool _useZro, bytes calldata _adapterParams)
-        public
-        view
-        returns (uint256 nativeFee, uint256 zroFee)
-    {
-        return lzEndpoint.estimateFees(_dstChainId, address(this), PAYLOAD, _useZro, _adapterParams);
-    }
-
-    function _nonblockingLzReceive(uint16, bytes memory, uint64, bytes memory) internal override {
+    function _lzReceive(
+        Origin calldata _origin, // struct containing info about the message sender
+        bytes32 _guid, // global packet identifier
+        bytes calldata payload, // encoded message payload being received
+        address _executor, // the Executor address.
+        bytes calldata _extraData // arbitrary data appended by the Executor
+    ) internal override {
         counter += 1;
     }
 
