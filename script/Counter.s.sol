@@ -109,27 +109,4 @@ contract DeployCounter is Script, BaseDeployer {
 
         return address(proxyCounter);
     }
-
-    /// @dev Compute the CREATE2 addresses for contracts (proxy, counter).
-    /// @param saltCounter The salt for the counter contract.
-    /// @param saltProxy The salt for the proxy contract.
-    modifier computeCreate2(bytes32 saltCounter, bytes32 saltProxy) {
-        create2addrCounter = vm.computeCreate2Address(
-            saltCounter,
-            hashInitCode(type(Counter).creationCode)
-        );
-
-        create2addrProxy = vm.computeCreate2Address(
-            saltProxy,
-            hashInitCode(
-                type(UUPSProxy).creationCode,
-                abi.encode(
-                    create2addrCounter,
-                    abi.encodeWithSelector(LzApp.initialize.selector, ownerAddress, LZ_ENDPOINT_SEPOLIA)
-                )
-            )
-        );
-
-        _;
-    }
 }
