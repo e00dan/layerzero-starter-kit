@@ -28,12 +28,10 @@ abstract contract OAppCoreInitializable is Initializable, IOAppCore, OwnableUpgr
      * @param _owner The address of the owner of the OApp.
      */
     function initialize(address _endpoint, address _owner) public initializer {
-        __Ownable_init(_owner);
+        __Ownable_init();
+        _transferOwnership(_owner);
         endpoint = ILayerZeroEndpointV2(_endpoint);
-        console2.log("before setDelegate");
         endpoint.setDelegate(_owner); // @dev By default, the owner is the delegate
-        console2.log("after setDelegate");
-
     }
 
     /**
