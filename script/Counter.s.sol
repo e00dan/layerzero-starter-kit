@@ -13,84 +13,57 @@ contract DeployCounter is Script, BaseDeployer {
 
     Counter private wrappedProxy;
 
-    // Endpoint configuration from: https://docs.layerzero.network/contracts/endpoint-addresses
-    uint16 public constant LZ_ENDPOINT_ID_SEPOLIA = 40161;
-    address public constant LZ_ENDPOINT_SEPOLIA = 0x464570adA09869d8741132183721B4f0769a0287;
+    struct LayerZeroChainDeployment {
+        Chains chain;
+        address endpoint;
+    }
 
-    uint16 public constant LZ_ENDPOINT_ID_MUMBAI = 40109;
-    address public constant LZ_ENDPOINT_MUMBAI = 0x464570adA09869d8741132183721B4f0769a0287;
+    LayerZeroChainDeployment[] private targetChains;
 
-    function setUp() public {}
+    function setUp() public {
+        // Endpoint configuration from: https://docs.layerzero.network/contracts/endpoint-addresses
+        targetChains.push(LayerZeroChainDeployment(Chains.Sepolia, 0x464570adA09869d8741132183721B4f0769a0287));
+        targetChains.push(LayerZeroChainDeployment(Chains.Mumbai, 0x464570adA09869d8741132183721B4f0769a0287));
+    }
 
     function run() public {}
 
     function deployCounterTestnet(uint256 _counterSalt, uint256 _counterProxySalt) public setEnvDeploy(Cycle.Test) {
-        Chains[] memory deployForks = new Chains[](2);
-        address[] memory lzEndpoints = new address[](2);
-
         counterSalt = bytes32(_counterSalt);
         counterProxySalt = bytes32(_counterProxySalt);
 
-        deployForks[0] = Chains.Sepolia;
-        lzEndpoints[0] = LZ_ENDPOINT_SEPOLIA;
-
-        deployForks[1] = Chains.Mumbai;
-        lzEndpoints[1] = LZ_ENDPOINT_MUMBAI;
-
-        createDeployMultichain(deployForks, lzEndpoints);
+        createDeployMultichain();
     }
 
     /// @dev Helper to iterate over chains and select fork.
-    /// @param deployForks The chains to deploy to.
-    function createDeployMultichain(Chains[] memory deployForks, address[] memory lzEndpoints) private {
+    function createDeployMultichain() private {
         address[] memory deployedContracts = new address[](2);
         uint256[] memory forkIds = new uint256[](2);
 
-        for (uint256 i; i < deployForks.length;) {
-            console2.log("Deploying Counter to chain:", uint256(deployForks[i]), "\n");
+        for (uint256 i; i < targetChains.length;) {
+            console2.log("Deploying to chain:", forks[targetChains[i].chain], "\n");
 
-            uint256 forkId = createSelectFork(deployForks[i]);
+            uint256 forkId = createSelectFork(targetChains[i].chain);
             forkIds[i] = forkId;
 
-            create2addrCounter = vm.computeCreate2Address(counterSalt, hashInitCode(type(Counter).creationCode));
+            deployedContracts[i] = chainDeployCounter(targetChains[i].endpoint);
 
-            create2addrProxy = vm.computeCreate2Address(
-                counterProxySalt,
-                hashInitCode(
-                    type(UUPSProxy).creationCode,
-                    abi.encode(
-                        create2addrCounter,
-                        abi.encodeWithSelector(Counter.initialize.selector, lzEndpoints[i], ownerAddress)
-                    )
-                )
-            );
-            deployedContracts[i] = chainDeployCounter(lzEndpoints[i]);
-
-            unchecked {
-                ++i;
-            }
+            ++i;
         }
 
-        vm.selectFork(forkIds[0]);
-        vm.startBroadcast(deployerPrivateKey);
-        Counter(deployedContracts[0]).setPeer(LZ_ENDPOINT_ID_MUMBAI, addressToBytes32(deployedContracts[1]));
-        vm.stopBroadcast();
-
-        vm.selectFork(forkIds[1]);
-        vm.startBroadcast(deployerPrivateKey);
-        Counter(deployedContracts[1]).setPeer(LZ_ENDPOINT_ID_SEPOLIA, addressToBytes32(deployedContracts[0]));
-        vm.stopBroadcast();
+        wireOApps(deployedContracts, forkIds);
     }
 
     /// @dev Function to perform actual deployment.
     function chainDeployCounter(address lzEndpoint)
         private
+        computeCreate2(counterSalt, counterProxySalt, lzEndpoint)
         broadcast(deployerPrivateKey)
         returns (address deployedContract)
     {
         Counter counter = new Counter{salt: counterSalt}();
 
-        require(create2addrCounter == address(counter), "Address mismatch Counter");
+        require(create2addrCounter == address(counter), "Implementation address mismatch");
 
         console2.log("Counter address:", address(counter), "\n");
 
@@ -100,7 +73,7 @@ contract DeployCounter is Script, BaseDeployer {
 
         proxyCounterAddress = address(proxyCounter);
 
-        require(create2addrProxy == proxyCounterAddress, "Address mismatch ProxyCounter");
+        require(create2addrProxy == proxyCounterAddress, "Proxy address mismatch");
 
         wrappedProxy = Counter(proxyCounterAddress);
 
@@ -111,7 +84,22 @@ contract DeployCounter is Script, BaseDeployer {
         return address(proxyCounter);
     }
 
-    function addressToBytes32(address _addr) internal pure returns (bytes32) {
-        return bytes32(uint256(uint160(_addr)));
+    /// @dev Compute the CREATE2 addresses for contracts (proxy, counter).
+    /// @param saltCounter The salt for the counter contract.
+    /// @param saltProxy The salt for the proxy contract.
+    modifier computeCreate2(bytes32 saltCounter, bytes32 saltProxy, address lzEndpoint) {
+        create2addrCounter = vm.computeCreate2Address(saltCounter, hashInitCode(type(Counter).creationCode));
+
+        create2addrProxy = vm.computeCreate2Address(
+            saltProxy,
+            hashInitCode(
+                type(UUPSProxy).creationCode,
+                abi.encode(
+                    create2addrCounter, abi.encodeWithSelector(Counter.initialize.selector, lzEndpoint, ownerAddress)
+                )
+            )
+        );
+
+        _;
     }
 }

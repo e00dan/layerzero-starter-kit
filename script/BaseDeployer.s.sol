@@ -2,6 +2,9 @@
 pragma solidity ^0.8.13;
 
 import {Script} from "forge-std/Script.sol";
+
+import {OApp} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OApp.sol";
+
 import {UUPSProxy} from "../src/UUPSProxy.sol";
 
 // taken from: https://github.com/timurguvenkaya/foundry-multichain/blob/main/script/BaseDeployer.s.sol
@@ -127,5 +130,27 @@ contract BaseDeployer is Script {
 
     function createSelectFork(Chains chain) public returns (uint256 forkId) {
         return vm.createSelectFork(forks[chain]);
+    }
+
+    function addressToBytes32(address _addr) internal pure returns (bytes32) {
+        return bytes32(uint256(uint160(_addr)));
+    }
+
+    function wireOApps(address[] memory oapps, uint256[] memory forkIds) public {
+        uint256 size = oapps.length;
+        for (uint256 i = 0; i < size; i++) {
+            OApp localOApp = OApp(payable(oapps[i]));
+            for (uint256 j = 0; j < size; j++) {
+                if (i == j) continue;
+                vm.selectFork(forkIds[j]);
+                OApp remoteOApp = OApp(payable(oapps[j]));
+                uint32 remoteEid = (remoteOApp.endpoint()).eid();
+                vm.selectFork(forkIds[i]);
+
+                vm.startBroadcast(deployerPrivateKey);
+                localOApp.setPeer(remoteEid, addressToBytes32(address(remoteOApp)));
+                vm.stopBroadcast();
+            }
+        }
     }
 }
