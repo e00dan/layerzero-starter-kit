@@ -28,7 +28,7 @@ contract CounterUpgradeabilityTest is ProxyTestHelper {
 
         setUpEndpoints(2, LibraryType.UltraLightNode);
 
-        (address[] memory uas, address implementationAddress) = setupOAppsProxies(1, 2);
+        (address[] memory uas, address implementationAddress) = setupOAppsProxies(type(Counter).creationCode, 1, 2);
 
         counterImplementation = Counter(implementationAddress);
 
@@ -95,5 +95,16 @@ contract CounterUpgradeabilityTest is ProxyTestHelper {
         (uint256 nativeFee,) = bCounter.quote(aEid, options);
         bCounter.increment{value: nativeFee}(aEid, options);
         verifyPackets(aEid, addressToBytes32(address(counter)));
+    }
+
+    // required for test helper to know how to initialize the OApp
+    function _deployOAppProxy(address _endpoint, address _owner, address implementationAddress)
+        internal
+        override
+        returns (address proxyAddress)
+    {
+        UUPSProxy proxy =
+            new UUPSProxy(implementationAddress, abi.encodeWithSelector(Counter.initialize.selector, _endpoint, _owner));
+        proxyAddress = address(proxy);
     }
 }

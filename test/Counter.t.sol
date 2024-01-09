@@ -23,7 +23,7 @@ contract CounterTest is ProxyTestHelper {
 
         setUpEndpoints(2, LibraryType.UltraLightNode);
 
-        (address[] memory uas,) = setupOAppsProxies(1, 2);
+        (address[] memory uas,) = setupOAppsProxies(type(Counter).creationCode, 1, 2);
         aCounter = Counter(payable(uas[0]));
         bCounter = Counter(payable(uas[1]));
     }
@@ -58,5 +58,16 @@ contract CounterTest is ProxyTestHelper {
         verifyPackets(aEid, addressToBytes32(address(aCounter)));
 
         assertEq(aCounter.count(), counterBefore + 1, "increment assertion failure");
+    }
+
+    // required for test helper to know how to initialize the OApp
+    function _deployOAppProxy(address _endpoint, address _owner, address implementationAddress)
+        internal
+        override
+        returns (address proxyAddress)
+    {
+        UUPSProxy proxy =
+            new UUPSProxy(implementationAddress, abi.encodeWithSelector(Counter.initialize.selector, _endpoint, _owner));
+        proxyAddress = address(proxy);
     }
 }
