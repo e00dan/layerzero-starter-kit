@@ -25,18 +25,15 @@ contract UpgradeCounter is Script, BaseDeployer {
     /// @dev Upgrade contracts on selected chains.
     /// @param upgradeForks The chains to upgrade.
     /// @param cycle The development cycle to set env variables (dev, test, prod).
-    function upgradeSelectedChains(
-        Chains[] calldata upgradeForks,
-        Cycle cycle
-    ) external setEnvUpgrade(cycle) {
+    function upgradeSelectedChains(Chains[] calldata upgradeForks, Cycle cycle) external setEnvUpgrade(cycle) {
         createUpgradeMultichainCounter(upgradeForks);
     }
 
     /// @dev Helper to iterate over chains and select forks.
     /// @param upgradeForks The chains to upgrade.
     function createUpgradeMultichainCounter(Chains[] memory upgradeForks) private {
-        for (uint256 i; i < upgradeForks.length; ) {
-            console2.log("Upgrading Counter on fork: ", uint(upgradeForks[i]));
+        for (uint256 i; i < upgradeForks.length;) {
+            console2.log("Upgrading Counter on fork: ", uint256(upgradeForks[i]));
 
             createSelectFork(upgradeForks[i]);
 

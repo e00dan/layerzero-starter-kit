@@ -33,6 +33,8 @@ $ forge build
 $ forge test
 ```
 
+Note: if you want to execute single test file you can add a flag, eg.: `--match-path ./test/CounterUpgradeability.t.sol`.
+
 ### Deploy
 
 Dry run:

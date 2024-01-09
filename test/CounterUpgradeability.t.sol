@@ -10,39 +10,40 @@ import {UUPSProxy} from "../src/UUPSProxy.sol";
 import {OAppCoreInitializable} from "../src/OApp/OAppCoreInitializable.sol";
 import {ProxyTestHelper} from "./utils/ProxyTestHelper.sol";
 
-contract CounterTest is ProxyTestHelper {
+contract CounterUpgradeabilityTest is ProxyTestHelper {
     using OptionsBuilder for bytes;
 
     uint32 aEid = 1;
     uint32 bEid = 2;
 
+    Counter private counterImplementation;
+
     Counter public aCounter;
     Counter public bCounter;
+
+    address private nonAdminAccount = makeAddr("nonAdminAccount");
 
     function setUp() public virtual override {
         super.setUp();
 
         setUpEndpoints(2, LibraryType.UltraLightNode);
 
-        (address[] memory uas,) = setupOAppsProxies(1, 2);
+        (address[] memory uas, address implementationAddress) = setupOAppsProxies(1, 2);
+
+        counterImplementation = Counter(implementationAddress);
+
         aCounter = Counter(payable(uas[0]));
         bCounter = Counter(payable(uas[1]));
     }
 
-    // classic message passing A -> B
-    function test_increment() public {
-        uint256 counterBefore = bCounter.count();
+    function test_setUp_alreadyInitialized_asProxy_reverts() public {
+        vm.expectRevert("Initializable: contract is already initialized");
 
-        bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
-        console2.logBytes(options);
-        (uint256 nativeFee,) = aCounter.quote(bEid, options);
-        aCounter.increment{value: nativeFee}(bEid, options);
+        aCounter.initialize(address(0), nonAdminAccount);
+    }
 
-        assertEq(bCounter.count(), counterBefore, "shouldn't be increased until packet is verified");
-
-        // verify packet to bCounter manually
-        verifyPackets(bEid, addressToBytes32(address(bCounter)));
-
-        assertEq(bCounter.count(), counterBefore + 1, "increment assertion failure");
+    function test_setUp_alreadyInitialized_asImpl_reverts() public {
+        vm.expectRevert("Initializable: contract is already initialized");
+        counterImplementation.initialize(address(0), nonAdminAccount);
     }
 }
