@@ -9,7 +9,7 @@ These are the potential advantages of using this repository instead of official 
 4. CREATE2 by default for deterministic addresses in multichain deployment
 5. Very simple Counter example just to get started without advanced functionality
 
-I still recommend to consult [official repository of LayerZero](https://github.com/LayerZero-Labs/LayerZero-v2) whenever you need to bring more advanced functionality such as composability, nested calls etc. Examples of such aren't part of this repository as of now.
+I still recommend consulting [official repository of LayerZero](https://github.com/LayerZero-Labs/LayerZero-v2) whenever you need to bring more advanced functionality or different code examples.
 
 ## Quickstart
 

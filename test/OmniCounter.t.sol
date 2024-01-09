@@ -9,7 +9,7 @@ import {OmniCounter, MsgCodec} from "../src/OmniCounter.sol";
 import {UUPSProxy} from "../src/UUPSProxy.sol";
 import {ProxyTestHelper} from "./utils/ProxyTestHelper.sol";
 
-contract CounterTest is ProxyTestHelper {
+contract OmniCounterTest is ProxyTestHelper {
     using OptionsBuilder for bytes;
 
     uint32 aEid = 1;
@@ -131,6 +131,28 @@ contract CounterTest is ProxyTestHelper {
         verifyPackets(bEid, addressToBytes32(address(bCounter)));
         assertEq(aCounter.count(), countABefore, "increment A assertion failure");
         assertEq(bCounter.count(), countBBefore + 1, "increment B assertion failure");
+
+        verifyPackets(aEid, addressToBytes32(address(aCounter)));
+        assertEq(aCounter.count(), countABefore + 1, "increment A assertion failure");
+    }
+
+    // A -> B1 -> B2 -> A
+    function test_lzCompose_ABA_increment() public {
+        uint256 countABefore = aCounter.count();
+        uint256 countBBefore = bCounter.count();
+        uint256 composedCountBBefore = bCounter.composedCount();
+
+        bytes memory options = OptionsBuilder
+            .newOptions()
+            .addExecutorLzReceiveOption(200000, 0)
+            .addExecutorLzComposeOption(0, 10000000, 10000000);
+        (uint256 nativeFee, ) = aCounter.quote(bEid, MsgCodec.COMPOSED_ABA_TYPE, options);
+        console2.log("bEid is", bEid);
+        aCounter.increment{ value: nativeFee }(bEid, MsgCodec.COMPOSED_ABA_TYPE, options);
+
+        verifyPackets(bEid, addressToBytes32(address(bCounter)), 0, address(bCounter));
+        assertEq(bCounter.count(), countBBefore + 1, "increment B1 assertion failure");
+        assertEq(bCounter.composedCount(), composedCountBBefore + 1, "increment B2 assertion failure");
 
         verifyPackets(aEid, addressToBytes32(address(aCounter)));
         assertEq(aCounter.count(), countABefore + 1, "increment A assertion failure");

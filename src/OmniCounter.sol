@@ -3,6 +3,7 @@ pragma solidity ^0.8.19;
 
 import {OptionsBuilder} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol";
 import {
+    ILayerZeroEndpointV2,
     MessagingParams,
     MessagingReceipt
 } from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol";
@@ -70,6 +71,7 @@ contract OmniCounter is ILayerZeroComposer, OAppUpgradeable, UUPSUpgradeable {
     function initialize(address _endpoint, address _owner) public initializer {
         _initializeOApp(_endpoint, _owner);
         admin = _owner;
+        eid = ILayerZeroEndpointV2(_endpoint).eid();
     }
 
     modifier onlyAdmin() {
