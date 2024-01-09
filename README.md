@@ -4,7 +4,7 @@ This repository can be cloned to quickly start building upgradeable applications
 
 These are the potential advantages of using this repository instead of official [LZ V2](https://github.com/LayerZero-Labs/LayerZero-v2) repository:
 1. Multichain deployment script written in Solidity
-2. OpenZeppelin V4 upgradeability for applications configured out of the box
+2. OpenZeppelin V4 upgradeability for applications configured out of the box ([vide LZ-V2/PR-#9](https://github.com/LayerZero-Labs/LayerZero-v2/pull/9))
 3. Native Foundry config - no NPM dependencies ([vide LZ-V2/Issue-#6](https://github.com/LayerZero-Labs/LayerZero-v2/issues/6)), no TypeScript
 4. CREATE2 by default for deterministic addresses in multichain deployment
 5. Very simple Counter example just to get started without advanced functionality
@@ -123,7 +123,7 @@ Example message options that can be used for quoting and then calling `increment
 
 ![message delivered](./img/message-delivered.png)
 
-## Inspiration
+## Inspiration 💡
 
 This repository is, to a significant extent, a compilation of other people's work. I just put these separate pieces together to achieve best developer experience possible.
 
