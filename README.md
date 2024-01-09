@@ -56,7 +56,7 @@ To send transactions and actually deploy just add `--broadcast` flag to the comm
 
 *Note: `1 1` parameters are respectively: `uint256 _counterSalt, uint256 _counterProxySalt`. It affects generated addresses. If you have problem with deployment script failing try changing `1 1` to some random numbers instead. You can't deploy with the same salt twice - it fails with message: `script failed: <no data>`.*
 
-*Note: Don't use automatic `--verify` flag because it doesn't seem to work. Looks like Foundry error.*
+*Note: Don't use automatic `--verify` flag because it doesn't seem to work.*
 
 ### Upgrade
 
@@ -68,66 +68,13 @@ forge script UpgradeCounter -s "upgradeTestnet()" --force --multi
 
 Add `--broadcast` when you're ready to send actual transactions ([example tx](https://sepolia.etherscan.io/tx/0xea00205afe187a984676c68e50d59b5493be72cd1204a7e424ffccdc7c80e1fa)).
 
-### Manual verify
+### Verify
 
-**Counter**
+[Read VERIFICATION.md.](./VERIFICATION.md)
 
-Verifying Counter seems to be more or less automatic.
+### Demo deployment
 
-Verifying Counter (you can obtain `COUNTER_ADDRESS`` from deployment logs, it is "Counter address"):
-```
-forge verify-contract COUNTER_ADDRESS Counter --watch --chain sepolia
-```
-
-On Mumbai it requires more effort to verify the contract. Run:
-```
-forge verify-contract COUNTER_ADDRESS Counter --chain mumbai --show-standard-json-input > etherscan.json
-```
-
-Sometimes even manually uploading the file doesn't seem to work for Mumbai network.
-
-And then manually upload that JSON file as Standard Input into Mumbai Polygonscan. Automatic verification is broken, error:
-```
-Encountered an error verifying this contract:
-Response: `NOTOK`
-Details: `Invalid API Key`
-```
-
-**Proxy**
-
-Verifying UUPSProxy seems to require marking the contract as proxy in Etherscan interface by clicking "Is this proxy?"
-
-![proxy verification](./img/proxy-verification.png)
-
-Full verification can be done by manually obtaining constructor args and executing following command:
-```
-forge verify-contract PROXY_ADDRESS UUPSProxy \
-    --constructor-args "0x000000000000000000000000a13e2fa62b771887f383f4a95c4d8e9ea1a0d74800000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000044485cc955000000000000000000000000464570ada09869d8741132183721b4f0769a028700000000000000000000000073b31ac967f46db2c45280c7f5d1d3ee7f38e12200000000000000000000000000000000000000000000000000000000" \
-    --watch --chain sepolia
-```
-
-Constructor arguments can be obtained from `./broadcast/multi/Counter.s.sol-latest/deployCounterTestnet.json` after running deployment script.
-
-### Existing deployment
-
-For demo purposes here are example contracts deployed on Sepolia and Mumbai.
-
-1. Sepolia Proxy: https://sepolia.etherscan.io/address/0x43d4e075bdF270513d6c76F59eCC5C4479322A3a#readProxyContract
-2. Mumbai Proxy: https://mumbai.polygonscan.com/address/0x43d4e075bdF270513d6c76F59eCC5C4479322A3a
-
-Both proxies and implementations are verified on [Sourcify](https://sourcify.dev/#/lookup/0x43d4e075bdF270513d6c76F59eCC5C4479322A3a).
-
-```
-== Logs ==
-Counter address: 0xA13e2fa62b771887F383F4a95c4D8E9eA1A0d748 
-Counter Proxy address: 0x43d4e075bdF270513d6c76F59eCC5C4479322A3a 
-```
-
-Example cross-chain transaction from Sepolia to Mumbai: [LayerZero Scan](https://testnet.layerzeroscan.com/tx/0xa236623f7cab080c706edf3889fe8dd2c55f0750fc5dc29cb4794dffc361b0e7)
-
-Example message options that can be used for quoting and then calling `increment()`: `0x00030100110100000000000000000000000000030d40` (pay 200k gas to Executor and trigger LZ Receive).
-
-![message delivered](./img/message-delivered.png)
+[Read EXISTING_DEPLOYMENT.md.](./EXISTING_DEPLOYMENT.md)
 
 ## Inspiration 💡
 
