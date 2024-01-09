@@ -30,11 +30,10 @@ contract CounterTest is ProxyTestHelper {
     }
 
     // classic message passing A -> B
-    function test_increment() public {
+    function test_increment_A_B() public {
         uint256 counterBefore = bCounter.count();
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
-        console2.logBytes(options);
         (uint256 nativeFee,) = aCounter.quote(bEid, options);
         aCounter.increment{value: nativeFee}(bEid, options);
 
@@ -44,5 +43,21 @@ contract CounterTest is ProxyTestHelper {
         verifyPackets(bEid, addressToBytes32(address(bCounter)));
 
         assertEq(bCounter.count(), counterBefore + 1, "increment assertion failure");
+    }
+
+    // classic message passing B -> A
+    function test_increment_B_A() public {
+        uint256 counterBefore = aCounter.count();
+
+        bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
+        (uint256 nativeFee,) = bCounter.quote(aEid, options);
+        bCounter.increment{value: nativeFee}(aEid, options);
+
+        assertEq(aCounter.count(), counterBefore, "shouldn't be increased until packet is verified");
+
+        // verify packet to bCounter manually
+        verifyPackets(aEid, addressToBytes32(address(aCounter)));
+
+        assertEq(aCounter.count(), counterBefore + 1, "increment assertion failure");
     }
 }

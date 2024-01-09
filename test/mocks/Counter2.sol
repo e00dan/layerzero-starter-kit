@@ -3,12 +3,13 @@ pragma solidity ^0.8.19;
 
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-import {OAppInitializable, MessagingFee, Origin} from "./OApp/OAppInitializable.sol";
+import {OAppInitializable, MessagingFee, Origin} from "../../src/OApp/OAppInitializable.sol";
 
-contract Counter is OAppInitializable, UUPSUpgradeable {
+contract Counter2 is OAppInitializable, UUPSUpgradeable {
     bytes public constant MESSAGE = "";
 
     uint256 public count;
+    uint256 public incrementsByTen;
 
     function increment(uint32 _dstEid, bytes calldata _options) public payable {
         _lzSend(
@@ -39,7 +40,8 @@ contract Counter is OAppInitializable, UUPSUpgradeable {
         address _executor, // the Executor address.
         bytes calldata _extraData // arbitrary data appended by the Executor
     ) internal override {
-        count++;
+        count += 10;
+        incrementsByTen++;
     }
 
     /* ========== UUPS ========== */
