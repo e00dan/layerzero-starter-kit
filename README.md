@@ -52,12 +52,9 @@ Dry run:
 forge script DeployCounter -s "deployCounterTestnet(uint256, uint256)" 1 1 --force --multi
 ```
 
-*Note: `1 1` parameters are respectively: `uint256 _counterSalt, uint256 _counterProxySalt`. It affects generated addresses. If you have problem with deployment script failing try changing `1 1` to some random numbers instead. You can't deploy with the same salt twice - it fails with message: `script failed: <no data>`.*
+To send transactions and actually deploy just add `--broadcast` flag to the command above.
 
-Deploy:
-```shell
-forge script DeployCounter -s "deployCounterTestnet(uint256, uint256)" 1 1 --force --multi --broadcast
-```
+*Note: `1 1` parameters are respectively: `uint256 _counterSalt, uint256 _counterProxySalt`. It affects generated addresses. If you have problem with deployment script failing try changing `1 1` to some random numbers instead. You can't deploy with the same salt twice - it fails with message: `script failed: <no data>`.*
 
 *Note: Don't use automatic `--verify` flag because it doesn't seem to work. Looks like Foundry error.*
 
