@@ -50,6 +50,16 @@ forge script DeployCounter -s "deployCounterTestnet(uint256, uint256)" 1 1 --for
 
 Note: Don't use automatic `--verify` flag because it doesn't seem to work. Looks like Foundry error.
 
+### Upgrade
+
+Please set `TEST_COUNTER_PROXY_ADDRESS` in `.env` to make sure correct proxy is updated.
+
+```
+forge script UpgradeCounter -s "upgradeTestnet()" --force --multi
+```
+
+[Example of working upgrade transaction.](https://sepolia.etherscan.io/tx/0xea00205afe187a984676c68e50d59b5493be72cd1204a7e424ffccdc7c80e1fa)
+
 ### Manual verify
 
 **Counter**
