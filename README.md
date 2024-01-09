@@ -76,6 +76,13 @@ Add `--broadcast` when you're ready to send actual transactions ([example tx](ht
 
 [Read EXISTING_DEPLOYMENT.md.](./EXISTING_DEPLOYMENT.md)
 
+### Compatibility
+
+Tested with:
+```
+forge 0.2.0 (71d8ea5 2024-01-09T14:41:14.837767655Z)
+```
+
 ## Inspiration 💡
 
 This repository is, to a significant extent, a compilation of other people's work. I just put these separate pieces together to achieve best developer experience possible.

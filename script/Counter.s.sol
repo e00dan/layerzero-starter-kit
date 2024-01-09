@@ -37,8 +37,8 @@ contract DeployCounter is Script, BaseDeployer {
 
     /// @dev Helper to iterate over chains and select fork.
     function createDeployMultichain() private {
-        address[] memory deployedContracts = new address[](2);
-        uint256[] memory forkIds = new uint256[](2);
+        address[] memory deployedContracts = new address[](targetChains.length);
+        uint256[] memory forkIds = new uint256[](targetChains.length);
 
         for (uint256 i; i < targetChains.length;) {
             console2.log("Deploying to chain:", forks[targetChains[i].chain], "\n");
