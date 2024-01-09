@@ -8,7 +8,6 @@ import {OptionsBuilder} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/
 import {Counter} from "../src/Counter.sol";
 import {Counter2} from "./mocks/Counter2.sol";
 import {UUPSProxy} from "../src/UUPSProxy.sol";
-import {OAppCoreInitializable} from "../src/OApp/OAppCoreInitializable.sol";
 import {ProxyTestHelper} from "./utils/ProxyTestHelper.sol";
 
 contract CounterUpgradeabilityTest is ProxyTestHelper {

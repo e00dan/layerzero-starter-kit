@@ -2,16 +2,16 @@
 
 pragma solidity ^0.8.22;
 
-import {
-    ILayerZeroReceiver, Origin
-} from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroReceiver.sol";
-import {OAppCoreInitializable} from "./OAppCoreInitializable.sol";
+import { ILayerZeroReceiver, Origin } from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroReceiver.sol";
+import { OAppCoreUpgradeable } from "./OAppCoreUpgradeable.sol";
 
 /**
- * @title OAppReceiver
- * @dev Abstract contract implementing the ILayerZeroReceiver interface and extending OAppCore for OApp receivers.
+ * @title OAppReceiverUpgradeable
+ * @dev Abstract upgradeable contract implementing the ILayerZeroReceiver interface and extending OAppCore for OApp
+ * receivers.
+ * @author Zodomo, https://github.com/Zodomo/LayerZero-v2
  */
-abstract contract OAppReceiver is ILayerZeroReceiver, OAppCoreInitializable {
+abstract contract OAppReceiverUpgradeable is ILayerZeroReceiver, OAppCoreUpgradeable {
     // Custom error message for when the caller is not the registered endpoint/
     error OnlyEndpoint(address addr);
 
@@ -56,7 +56,7 @@ abstract contract OAppReceiver is ILayerZeroReceiver, OAppCoreInitializable {
      * @dev This is also enforced by the OApp.
      * @dev By default this is NOT enabled. ie. nextNonce is hardcoded to return 0.
      */
-    function nextNonce(uint32, /*_srcEid*/ bytes32 /*_sender*/ ) public view virtual returns (uint64 nonce) {
+    function nextNonce(uint32 /*_srcEid*/, bytes32 /*_sender*/) public view virtual returns (uint64 nonce) {
         return 0;
     }
 

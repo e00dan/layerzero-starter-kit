@@ -2,34 +2,27 @@
 
 pragma solidity ^0.8.22;
 
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import { IOAppCore, ILayerZeroEndpointV2 } from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/interfaces/IOAppCore.sol";
 
-import {IOAppCore, ILayerZeroEndpointV2} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/interfaces/IOAppCore.sol";
-import "forge-std/console2.sol";
 /**
- * @title OAppCoreInitializable
- * @dev Abstract contract implementing the IOAppCore interface with basic OApp configurations.
+ * @title OAppCoreUpgradeable
+ * @dev Abstract contract implementing the IOAppCore interface with basic OApp configurations and upgradeability.
+ * @author Zodomo, https://github.com/Zodomo/LayerZero-v2
  */
-
-abstract contract OAppCoreInitializable is Initializable, IOAppCore, OwnableUpgradeable {
+abstract contract OAppCoreUpgradeable is IOAppCore, OwnableUpgradeable {
     // The LayerZero endpoint associated with the given OApp
     ILayerZeroEndpointV2 public endpoint;
 
     // Mapping to store peers associated with corresponding endpoints
     mapping(uint32 eid => bytes32 peer) public peers;
 
-    constructor() {
-        _disableInitializers();
-    }
-
     /**
-     * @dev Initialize the OAppCore with the provided endpoint and owner.
-     * @param _endpoint The address of the LOCAL LayerZero endpoint.
-     * @param _owner The address of the owner of the OApp.
+     * @dev Constructor to initialize the OAppCore with the provided endpoint and owner.
+     * @param _endpoint The address of the LOCAL Layer Zero endpoint.
+     * @param _owner The address of the owner of the OAppCore.
      */
-    function initialize(address _endpoint, address _owner) public initializer {
-        __Ownable_init();
+    function _initializeOAppCore(address _endpoint, address _owner) internal onlyInitializing {
         _transferOwnership(_owner);
         endpoint = ILayerZeroEndpointV2(_endpoint);
         endpoint.setDelegate(_owner); // @dev By default, the owner is the delegate

@@ -6,7 +6,6 @@ import {Script, console2} from "forge-std/Script.sol";
 import {BaseDeployer} from "./BaseDeployer.s.sol";
 import {Counter} from "../src/Counter.sol";
 import {UUPSProxy} from "../src/UUPSProxy.sol";
-import {OAppCoreInitializable} from "../src/OApp/OAppCoreInitializable.sol";
 
 contract DeployCounter is Script, BaseDeployer {
     address private create2addrCounter;
@@ -61,7 +60,7 @@ contract DeployCounter is Script, BaseDeployer {
                     type(UUPSProxy).creationCode,
                     abi.encode(
                         create2addrCounter,
-                        abi.encodeWithSelector(OAppCoreInitializable.initialize.selector, lzEndpoints[i], ownerAddress)
+                        abi.encodeWithSelector(Counter.initialize.selector, lzEndpoints[i], ownerAddress)
                     )
                 )
             );
@@ -96,8 +95,7 @@ contract DeployCounter is Script, BaseDeployer {
         console2.log("Counter address:", address(counter), "\n");
 
         proxyCounter = new UUPSProxy{salt: counterProxySalt}(
-            address(counter),
-            abi.encodeWithSelector(OAppCoreInitializable.initialize.selector, lzEndpoint, ownerAddress)
+            address(counter), abi.encodeWithSelector(Counter.initialize.selector, lzEndpoint, ownerAddress)
         );
 
         proxyCounterAddress = address(proxyCounter);

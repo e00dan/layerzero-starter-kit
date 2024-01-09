@@ -8,7 +8,6 @@ import {TestHelper} from "@layerzerolabs/lz-evm-oapp-v2/test/TestHelper.sol";
 
 import {Counter} from "../../src/Counter.sol";
 import {UUPSProxy} from "../../src/UUPSProxy.sol";
-import {OAppCoreInitializable} from "../../src/OApp/OAppCoreInitializable.sol";
 
 contract ProxyTestHelper is TestHelper {
     using OptionsBuilder for bytes;
@@ -38,9 +37,8 @@ contract ProxyTestHelper is TestHelper {
         internal
         returns (address proxyAddress)
     {
-        UUPSProxy proxy = new UUPSProxy(
-            implementationAddress, abi.encodeWithSelector(OAppCoreInitializable.initialize.selector, _endpoint, _owner)
-        );
+        UUPSProxy proxy =
+            new UUPSProxy(implementationAddress, abi.encodeWithSelector(Counter.initialize.selector, _endpoint, _owner));
         proxyAddress = address(proxy);
     }
 }

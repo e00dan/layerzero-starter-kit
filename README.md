@@ -1,4 +1,4 @@
-## Upgradeable LayerZero V2 Foundry Starter Pack
+## Upgradeable LayerZero V2 Foundry Starter Pack 🛠️🚀
 
 This repository can be cloned to quickly start building upgradeable applications on top of LayerZero V2. It includes libraries required for development, contains test setup and working multichain deployment script written in Solidity.
 
@@ -33,7 +33,7 @@ $ forge build
 $ forge test
 ```
 
-Note: if you want to execute single test file you can add a flag, eg.: `--match-path ./test/CounterUpgradeability.t.sol`.
+*Note: if you want to execute single test file you can add a flag, eg.: `--match-path ./test/CounterUpgradeability.t.sol`.*
 
 ### Deploy
 
@@ -43,14 +43,14 @@ Dry run:
 forge script DeployCounter -s "deployCounterTestnet(uint256, uint256)" 1 1 --force --multi
 ```
 
-Note: `1 1` parameters are respectively: `uint256 _counterSalt, uint256 _counterProxySalt`. It affects generated addresses. If you have problem with deployment script failing try changing `1 1` to some random numbers instead. You can't deploy with the same salt twice - it fails with message: `script failed: <no data>`.
+*Note: `1 1` parameters are respectively: `uint256 _counterSalt, uint256 _counterProxySalt`. It affects generated addresses. If you have problem with deployment script failing try changing `1 1` to some random numbers instead. You can't deploy with the same salt twice - it fails with message: `script failed: <no data>`.*
 
 Deploy:
 ```shell
 forge script DeployCounter -s "deployCounterTestnet(uint256, uint256)" 1 1 --force --multi --broadcast
 ```
 
-Note: Don't use automatic `--verify` flag because it doesn't seem to work. Looks like Foundry error.
+*Note: Don't use automatic `--verify` flag because it doesn't seem to work. Looks like Foundry error.*
 
 ### Upgrade
 
@@ -129,7 +129,11 @@ This repository is, to a significant extent, a compilation of other people's wor
 
 LayerZero libraries and examples are based on: https://github.com/LayerZero-Labs/LayerZero-v2.
 
-Multichain script deployment setup is heavily based on: https://github.com/timurguvenkaya/foundry-multichain.
+Multichain script deployment setup is heavily based on: https://github.com/timurguvenkaya/foundry-multichain by @timurguvenkaya.
+
+LayerZero OApp Upgradeability is taken from: https://github.com/Zodomo/LayerZero-v2/tree/main by @Zodomo.
+
+*Note: Initially I have used my own implementation but I think @Zodomo version is slightly better structured. I've noticed that implementation after I created this repository.*
 
 ## License
 

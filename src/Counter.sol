@@ -2,13 +2,25 @@
 pragma solidity ^0.8.19;
 
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {OAppUpgradeable, MessagingFee, Origin} from "@zodomo/oapp-upgradeable/OAppUpgradeable.sol";
 
-import {OAppInitializable, MessagingFee, Origin} from "./OApp/OAppInitializable.sol";
-
-contract Counter is OAppInitializable, UUPSUpgradeable {
+contract Counter is OAppUpgradeable, UUPSUpgradeable {
     bytes public constant MESSAGE = "";
 
     uint256 public count;
+
+    constructor() {
+        _disableInitializers();
+    }
+
+    /**
+     * @dev Initialize the OApp with the provided endpoint and owner.
+     * @param _endpoint The address of the LOCAL LayerZero endpoint.
+     * @param _owner The address of the owner of the OApp.
+     */
+    function initialize(address _endpoint, address _owner) public initializer {
+        _initializeOApp(_endpoint, _owner);
+    }
 
     function increment(uint32 _dstEid, bytes calldata _options) public payable {
         _lzSend(
