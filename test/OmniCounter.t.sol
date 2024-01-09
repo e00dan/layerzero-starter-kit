@@ -70,6 +70,39 @@ contract CounterTest is ProxyTestHelper {
         assertEq(bCounter.count(), counterBefore + batchSize, "batchIncrement assertion failure");
     }
 
+    function test_nativeDrop_increment() public {
+        uint256 balanceBefore = address(bCounter).balance;
+
+        bytes memory options = OptionsBuilder
+            .newOptions()
+            .addExecutorLzReceiveOption(200000, 0)
+            .addExecutorNativeDropOption(1 gwei, addressToBytes32(address(bCounter)));
+        (uint256 nativeFee, ) = aCounter.quote(bEid, MsgCodec.VANILLA_TYPE, options);
+        aCounter.increment{ value: nativeFee }(bEid, MsgCodec.VANILLA_TYPE, options);
+
+        // verify packet to bCounter manually
+        verifyPackets(bEid, addressToBytes32(address(bCounter)));
+
+        assertEq(address(bCounter).balance, balanceBefore + 1 gwei, "nativeDrop assertion failure");
+
+        // transfer funds out
+        address payable receiver = payable(address(0xABCD));
+        address payable admin = payable(address(this));
+
+        // withdraw with non admin
+        vm.startPrank(receiver);
+        vm.expectRevert("only admin");
+        bCounter.withdraw(receiver, 1 gwei);
+        vm.stopPrank();
+
+        // withdraw with admin
+        vm.startPrank(admin);
+        bCounter.withdraw(receiver, 1 gwei);
+        assertEq(address(bCounter).balance, 0, "withdraw assertion failure");
+        assertEq(receiver.balance, 1 gwei, "withdraw assertion failure");
+        vm.stopPrank();
+    }
+
     // classic message passing A -> B1 -> B2
     function test_lzCompose_increment() public {
         uint256 countBefore = bCounter.count();

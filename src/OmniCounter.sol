@@ -69,6 +69,7 @@ contract OmniCounter is ILayerZeroComposer, OAppUpgradeable, UUPSUpgradeable {
      */
     function initialize(address _endpoint, address _owner) public initializer {
         _initializeOApp(_endpoint, _owner);
+        admin = _owner;
     }
 
     modifier onlyAdmin() {
