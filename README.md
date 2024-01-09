@@ -11,31 +11,40 @@ These are the potential advantages of using this repository instead of official 
 
 I still recommend to consult [official repository of LayerZero](https://github.com/LayerZero-Labs/LayerZero-v2) whenever you need to bring more advanced functionality such as composability, nested calls etc. Examples of such aren't part of this repository as of now.
 
+## Quickstart
+
+```
+git clone https://github.com/Kuzirashi/layerzero-starter-kit.git
+cd layerzero-starter-kit
+forge install
+```
+
+*Note: If you don't have Foundry installed yet please follow [installation guide](https://book.getfoundry.sh/getting-started/installation).*
+
 ## Usage
-
-### Preparation
-
-```
-cp .env.example .env
-```
-
-Fill `TEST_DEPLOYER_KEY` and `TEST_OWNER_ADDRESS` before running deployment script.
 
 ### Build
 
 ```shell
-$ forge build
+forge build
 ```
 
 ### Test
 
 ```shell
-$ forge test
+forge test
 ```
 
 *Note: if you want to execute single test file you can add a flag, eg.: `--match-path ./test/CounterUpgradeability.t.sol`.*
 
 ### Deploy
+
+Preparation:
+```
+cp .env.example .env
+```
+
+Fill `TEST_DEPLOYER_KEY` and `TEST_OWNER_ADDRESS` before running deployment script.
 
 Dry run:
 
