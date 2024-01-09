@@ -58,7 +58,7 @@ Please set `TEST_COUNTER_PROXY_ADDRESS` in `.env` to make sure correct proxy is 
 forge script UpgradeCounter -s "upgradeTestnet()" --force --multi
 ```
 
-[Example of working upgrade transaction.](https://sepolia.etherscan.io/tx/0xea00205afe187a984676c68e50d59b5493be72cd1204a7e424ffccdc7c80e1fa)
+Add `--broadcast` when you're ready to send actual transactions ([example tx](https://sepolia.etherscan.io/tx/0xea00205afe187a984676c68e50d59b5493be72cd1204a7e424ffccdc7c80e1fa)).
 
 ### Manual verify
 
