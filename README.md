@@ -125,6 +125,8 @@ Example message options that can be used for quoting and then calling `increment
 
 ## Inspiration
 
+This repository is, to a significant extent, a compilation of other people's work. I just put these separate pieces together to achieve best developer experience possible.
+
 LayerZero libraries and examples are based on: https://github.com/LayerZero-Labs/LayerZero-v2.
 
 Multichain script deployment setup is heavily based on: https://github.com/timurguvenkaya/foundry-multichain.
