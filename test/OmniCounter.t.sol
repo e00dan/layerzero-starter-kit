@@ -73,12 +73,10 @@ contract OmniCounterTest is ProxyTestHelper {
     function test_nativeDrop_increment() public {
         uint256 balanceBefore = address(bCounter).balance;
 
-        bytes memory options = OptionsBuilder
-            .newOptions()
-            .addExecutorLzReceiveOption(200000, 0)
+        bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0)
             .addExecutorNativeDropOption(1 gwei, addressToBytes32(address(bCounter)));
-        (uint256 nativeFee, ) = aCounter.quote(bEid, MsgCodec.VANILLA_TYPE, options);
-        aCounter.increment{ value: nativeFee }(bEid, MsgCodec.VANILLA_TYPE, options);
+        (uint256 nativeFee,) = aCounter.quote(bEid, MsgCodec.VANILLA_TYPE, options);
+        aCounter.increment{value: nativeFee}(bEid, MsgCodec.VANILLA_TYPE, options);
 
         // verify packet to bCounter manually
         verifyPackets(bEid, addressToBytes32(address(bCounter)));
@@ -142,13 +140,10 @@ contract OmniCounterTest is ProxyTestHelper {
         uint256 countBBefore = bCounter.count();
         uint256 composedCountBBefore = bCounter.composedCount();
 
-        bytes memory options = OptionsBuilder
-            .newOptions()
-            .addExecutorLzReceiveOption(200000, 0)
+        bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0)
             .addExecutorLzComposeOption(0, 10000000, 10000000);
-        (uint256 nativeFee, ) = aCounter.quote(bEid, MsgCodec.COMPOSED_ABA_TYPE, options);
-        console2.log("bEid is", bEid);
-        aCounter.increment{ value: nativeFee }(bEid, MsgCodec.COMPOSED_ABA_TYPE, options);
+        (uint256 nativeFee,) = aCounter.quote(bEid, MsgCodec.COMPOSED_ABA_TYPE, options);
+        aCounter.increment{value: nativeFee}(bEid, MsgCodec.COMPOSED_ABA_TYPE, options);
 
         verifyPackets(bEid, addressToBytes32(address(bCounter)), 0, address(bCounter));
         assertEq(bCounter.count(), countBBefore + 1, "increment B1 assertion failure");

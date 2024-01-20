@@ -40,4 +40,19 @@ abstract contract ProxyTestHelper is TestHelper {
         internal
         virtual
         returns (address proxyAddress);
+
+    function _deployOAppProxyGeneralized(bytes memory _oappBytecode, bytes memory _deletegateCallData)
+        internal
+        returns (address proxyAddress)
+    {
+        address implementationAddress = address(0);
+
+        assembly {
+            implementationAddress := create(0, add(_oappBytecode, 0x20), mload(_oappBytecode))
+            if iszero(extcodesize(implementationAddress)) { revert(0, 0) }
+        }
+
+        UUPSProxy proxy = new UUPSProxy(implementationAddress, _deletegateCallData);
+        proxyAddress = address(proxy);
+    }
 }

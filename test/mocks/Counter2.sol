@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import {OAppUpgradeable, MessagingFee, Origin} from "@zodomo/oapp-upgradeable/OAppUpgradeable.sol";
+import {OAppUpgradeable, MessagingFee, Origin} from "@zodomo/oapp-upgradeable/oapp/OAppUpgradeable.sol";
 
 contract Counter2 is OAppUpgradeable, UUPSUpgradeable {
     bytes public constant MESSAGE = "";

@@ -8,7 +8,7 @@ import {
     MessagingReceipt
 } from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import {OAppUpgradeable, MessagingFee, Origin} from "@zodomo/oapp-upgradeable/OAppUpgradeable.sol";
+import {OAppUpgradeable, MessagingFee, Origin} from "@zodomo/oapp-upgradeable/oapp/OAppUpgradeable.sol";
 import {ILayerZeroComposer} from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroComposer.sol";
 
 library MsgCodec {
